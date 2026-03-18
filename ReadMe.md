@@ -5,7 +5,7 @@
 
 An end-to-end analytics project investigating whether Superstore's discount strategy is growing the business — or eroding it. Built across Python, SQL Server, and Tableau.
 
-**[View the Tableau Story on Tableau Public →](#)**
+**[View the Tableau Story on Tableau Public →](https://public.tableau.com/views/Retail_Sales_project/TheDiscountTrap?:language=en-US&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link)**
 
 ---
 
