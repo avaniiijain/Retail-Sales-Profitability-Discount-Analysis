@@ -1,23 +1,55 @@
+import os
 import pandas as pd
 import urllib
+
+from pathlib import Path
+from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
 from sqlalchemy import Date, String, Integer, Numeric
 
+# 1. CONFIGURATION
 
-SERVER   = r"Avani\SQLEXPRESS"
-DATABASE = "SuperstoreDB"
-CSV_PATH = "C:\\Users\\avani\\Project1\\superstore_clean.csv"
+BASE_DIR = Path(__file__).resolve().parent.parent
 
-# 1. CREATE DATABASE
+load_dotenv(BASE_DIR / ".env")
+
+SERVER = os.getenv("SQL_SERVER", "127.0.0.1,1433")
+DATABASE = os.getenv("SQL_DATABASE", "SuperstoreDB")
+USERNAME = os.getenv("SQL_USERNAME", "sa")
+PASSWORD = os.getenv("SQL_PASSWORD")
+DRIVER = os.getenv(
+    "SQL_DRIVER",
+    "ODBC Driver 18 for SQL Server"
+)
+
+CSV_PATH = BASE_DIR / "data" / "superstore_clean.csv"
+
+if not PASSWORD:
+    raise ValueError(
+        "SQL_PASSWORD is missing. Add it to the .env file."
+    )
+
+if not CSV_PATH.exists():
+
+    raise FileNotFoundError(
+
+        f"Cleaned CSV not found: {CSV_PATH}"
+
+    )
+
+# 2. CREATE DATABASE
 # Must connect to master first — you cannot drop/create a database
 # while connected to it. master always exists in every SQL Server instance.
 print("--- Database Setup ---")
 
 master_params = urllib.parse.quote_plus(
-    f"DRIVER={{ODBC Driver 17 for SQL Server}};"
+    f"DRIVER={{{DRIVER}}};"
     f"SERVER={SERVER};"
     f"DATABASE=master;"
-    f"Trusted_Connection=yes;"
+    f"UID={USERNAME};"
+    f"PWD={PASSWORD};"
+    f"Encrypt=yes;"
+    f"TrustServerCertificate=yes;"
 )
 
 master_engine = create_engine(
@@ -44,7 +76,7 @@ with master_engine.connect() as conn:
 print(f"Database '{DATABASE}' dropped and recreated")
 
 
-# 1. READ CLEANED CSV
+# 3. READ CLEANED CSV
 df = pd.read_csv(CSV_PATH, encoding="latin1")
 df["order_date"] = pd.to_datetime(df["order_date"])
 df["ship_date"]  = pd.to_datetime(df["ship_date"])
@@ -52,12 +84,15 @@ df["postal_code"] = df["postal_code"].astype(str).str.zfill(5)
 print(f"Rows read from CSV: {len(df):,}")
 
 
-# 2. CONNECT TO SQL SERVER
+# 4. CONNECT TO SQL SERVER
 params = urllib.parse.quote_plus(
-    f"DRIVER={{ODBC Driver 17 for SQL Server}};"
+    f"DRIVER={{{DRIVER}}};"
     f"SERVER={SERVER};"
     f"DATABASE={DATABASE};"
-    f"Trusted_Connection=yes;"
+    f"UID={USERNAME};"
+    f"PWD={PASSWORD};"
+    f"Encrypt=yes;"
+    f"TrustServerCertificate=yes;"
 )
 
 engine = create_engine(
@@ -70,7 +105,7 @@ with engine.connect() as conn:
 print(f"Connected to: {SERVER} / {DATABASE}")
 
 
-# 3. LOAD TABLE
+# 5. LOAD TABLE
 dtype_map = {
     "row_id"              : Integer(),
     "order_id"            : String(14),
@@ -105,7 +140,7 @@ df.to_sql(
 print(f"Table loaded: superstore_clean ({len(df):,} rows)")
 
 
-# 4. DDL — primary key + analytical view
+# 6. DDL — primary key + analytical view
 with engine.connect() as conn:
 
     # Recreate row_id as NOT NULL
@@ -203,7 +238,7 @@ with engine.connect() as conn:
             2) AS DECIMAL(12,2))                    AS revenue_impact,
 
             -- Profit as a fraction of sales — negative means sold at a loss
-            CAST(ROUND(profit / NULLIF(sales, 0), 4) AS DECIMAL(10,2))AS contribution_margin,
+            CAST(ROUND(profit / NULLIF(sales, 0), 4) AS DECIMAL(10,4))AS contribution_margin,
 
             -- Human readable profit classification
             CASE
@@ -221,7 +256,7 @@ print("Primary key added: PK_superstore")
 print("View created     : vw_superstore")
 
 
-# 5. VERIFY
+# 7. VERIFY
 with engine.connect() as conn:
     table_rows = conn.execute(text("SELECT COUNT(*) FROM superstore_clean")).scalar()
     view_rows  = conn.execute(text("SELECT COUNT(*) FROM vw_superstore")).scalar()
@@ -229,5 +264,6 @@ with engine.connect() as conn:
 print(f"\nRows in superstore_clean : {table_rows:,}")
 print(f"Rows in vw_superstore    : {view_rows:,}")
 print(f"\n{'='*55}")
-print(f"  Done. Open SSMS and run DQL on vw_superstore")
+print("  Done. Connect through the VS Code SQL Server extension")
+print("  and run queries on vw_superstore")
 print(f"{'='*55}")

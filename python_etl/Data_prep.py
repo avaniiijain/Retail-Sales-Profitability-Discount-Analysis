@@ -2,11 +2,14 @@
 # Purpose : Load raw CSV, clean, validate, and export cleaned dataset for analysis
 
 import pandas as pd
-import os
+from pathlib import Path
 
+BASE_DIR = Path(__file__).resolve().parent.parent
+INPUT_PATH = BASE_DIR / "data" / "Sample_Superstore.csv"
+OUTPUT_PATH = BASE_DIR / "data" / "superstore_clean.csv"
 
 # 1. LOAD RAW DATA
-df = pd.read_csv("Sample_Superstore.csv", encoding="latin1")
+df = pd.read_csv(INPUT_PATH, encoding="latin1")
 print(f"Rows loaded: {len(df):,}")
 
 
@@ -25,7 +28,10 @@ df["order_date"] = pd.to_datetime(df["order_date"], format="%m/%d/%Y")
 df["ship_date"]  = pd.to_datetime(df["ship_date"],  format="%m/%d/%Y")
 
 # Postal code: read as int by pandas, must restore leading zeros
-df["postal_code"] = df["postal_code"].astype(str).str.zfill(5)
+df["postal_code"] = (df["postal_code"]
+                     .astype("Int64")
+                     .astype("string")
+                     .str.zfill(5))
 
 
 # 4. DUPLICATE CHECK
@@ -91,10 +97,10 @@ print(f"Loss-making rows: {(df['profit'] < 0).sum():,} ({(df['profit'] < 0).mean
 
 
 # 10. EXPORT
-OUTPUT_PATH = "C:\\Users\\avani\\Project1\\superstore_clean.csv"
+OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-if os.path.exists(OUTPUT_PATH):
-    os.remove(OUTPUT_PATH)
+if OUTPUT_PATH.exists():
+    OUTPUT_PATH.unlink()
 
 df.to_csv(OUTPUT_PATH, index=False)
 print(f"\nSaved to: {OUTPUT_PATH}")
