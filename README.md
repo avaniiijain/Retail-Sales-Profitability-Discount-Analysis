@@ -1,167 +1,307 @@
 # The Discount Trap
-### Superstore Discount & Profitability Analysis
+## Superstore Discount & Profitability Analysis
 
 > *Discounts are buying revenue, not profit.*
 
-An end-to-end analytics project investigating whether Superstore's discount strategy is growing the business — or eroding it. Built across Python, SQL Server, and Tableau.
+An end-to-end Business Intelligence project investigating how discounting affects revenue, profitability, and pricing strategy using **Python, SQL Server, and Tableau**.
 
-**[View the Tableau Story on Tableau Public →](https://public.tableau.com/views/Retail_Sales_project/TheDiscountTrap?:language=en-US&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link)**
+**🔗 Tableau Story:**  
+https://public.tableau.com/views/Retail_Sales_project/TheDiscountTrap?:language=en-US&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link
 
 ---
 
-## The Problem
+# Project Overview
 
-The sales team believes discounts drive growth. Revenue is up. But is profit following?
+Retail businesses often rely on promotions to increase sales, but aggressive discounting can reduce profitability.
 
-This project answers four questions:
+This project analyzes four years of Superstore sales data to determine whether discounts actually improve business performance or simply generate additional revenue at the expense of profit.
 
-1. Do promotions actually increase profit or just revenue?
+The project covers the complete analytics workflow:
+
+- Data cleaning with Python
+- ETL pipeline into SQL Server
+- Analytical SQL view creation
+- Business analysis using T-SQL
+- Interactive Tableau dashboard
+
+---
+
+# Business Questions
+
+This project answers four key questions:
+
+1. Do promotions increase profit or only revenue?
 2. Which product categories are over-discounted?
-3. What is the price elasticity of different customer segments?
-4. How can discount depth be optimised to maximise contribution margin?
+3. How price-sensitive are different customer segments?
+4. What discount policy would maximize profitability?
 
 ---
 
-## The Headline Finding
+# Key Finding
 
 | | Full Price | Discounted |
-|---|---|---|
-| **Total Profit** | $320,987 | -$34,590 |
-| **Avg Order Profit** | $66.90 | -$6.66 |
-| **Loss-Making Orders** | 0 | 1,871 |
-| **Avg Contribution Margin** | 33.9% | -8.3% |
+|---|---:|---:|
+| Total Profit | $320,987 | -$34,590 |
+| Average Order Profit | $66.90 | -$6.66 |
+| Loss-Making Orders | 0 | 1,871 |
+| Average Contribution Margin | 33.9% | -8.3% |
 
-> **Every single loss-making order in 4 years came from a discounted transaction.**
-> Capping discounts at 30% would have recovered **$124,006 in profit** without eliminating a single full-price customer.
+> Discounts increased revenue, but every loss-making order in the dataset occurred on a discounted transaction.
 
 ---
 
-## Tech Stack
+# Tech Stack
 
-| Layer | Tool |
+| Layer | Technology |
 |---|---|
-| Data Cleaning | Python 3, pandas |
-| Database Load | SQLAlchemy, pyodbc (ODBC Driver 17) |
-| Database & Analysis | SQL Server Express, T-SQL |
-| Visualisation | Tableau Desktop (Free) |
-| Publishing | Tableau Public |
+| Programming | Python 3 |
+| Data Cleaning | Pandas |
+| ETL | SQLAlchemy, pyodbc |
+| Database | SQL Server 2022 (Docker) |
+| SQL | T-SQL |
+| Visualization | Tableau Public |
+| Environment | python-dotenv |
+| Version Control | Git & GitHub |
 
 ---
 
-## Repository Structure
+# Project Architecture
 
 ```
-superstore-discount-profitability/
+Sample_Superstore.csv
+        │
+        ▼
+ Data_prep.py
+        │
+        ▼
+superstore_clean.csv
+        │
+        ▼
+     load.py
+        │
+        ▼
+ SQL Server Database
+        │
+        ▼
+   vw_superstore
+        │
+        ▼
+   SQL Analysis
+        │
+        ▼
+ Tableau Dashboard
+```
+
+---
+
+# Repository Structure
+
+```
+Retail-Sales-Profitability-Discount-Analysis/
 │
 ├── data/
-│   └── Sample_Superstore.csv          # Raw dataset from Kaggle
+│   ├── Sample_Superstore.csv
+│   └── superstore_clean.csv
 │
 ├── python_etl/
-│   ├── 01_clean.py                    # Clean, validate, export CSV
-│   └── 02_load_to_sql.py             # Create DB, load table, build view
+│   ├── Data_prep.py
+│   └── load.py
 │
 ├── sql/
-│   ├── 00_create_db_and_view.sql      # DDL — SuperstoreDB + vw_superstore
-│   ├── 01_promotions_vs_profit.sql    # Q1 analysis
-│   ├── 02_over_discounted_categories.sql  # Q2 analysis
-│   ├── 03_price_elasticity_by_segment.sql # Q3 analysis
-│   └── 04_optimise_discount_depth.sql # Q4 analysis + policy simulation
+│   ├── promotions.sql
+│   ├── over discounted.sql
+│   ├── elasticity.sql
+│   └── optimisation.sql
 │
-└── tableau/
-    └── the_discount_trap_link.txt     # Tableau Public URL
+├── tableau/
+│
+├── .env.example
+├── .gitignore
+└── README.md
 ```
 
 ---
 
-## Pipeline
+# ETL Pipeline
 
-### Step 1 — Clean (`python_etl/01_clean.py`)
+## Step 1 — Data Preparation (`Data_prep.py`)
 
-Loads the raw CSV, runs validation checks, applies transformations, and exports `superstore_clean.csv`.
+The raw dataset is cleaned and validated before loading into SQL Server.
 
-**Transformations:**
-- Column names normalised (lowercase, underscores)
-- `order_date` and `ship_date` parsed to datetime
-- `postal_code` zero-padded to 5 digits
-- `discount` renamed to `percentage_discount`, multiplied by 100
-- All categorical columns standardised to Title Case
+### Transformations
 
-**Validation (all passed):**
-- Duplicate `row_id` — 0
-- Null values — 0
-- Ship date before order date — 0
-- Discount outside [0, 1] — 0
+- Standardized column names
+- Parsed order and ship dates
+- Preserved leading zeros in postal codes
+- Converted discount values to percentages
+- Rounded monetary values
+- Standardized categorical values
 
-### Step 2 — Load (`python_etl/02_load_to_sql.py`)
+### Validation Checks
 
-Connects to SQL Server Express via SQLAlchemy + pyodbc. Creates `SuperstoreDB`, loads `superstore_clean`, adds primary key, and builds the analytical view `vw_superstore`.
+- Duplicate Row IDs
+- Missing values
+- Invalid shipping dates
+- Invalid discount values
+- Invalid sales and quantity values
 
-### Step 3 — Analytical View (`sql/00_create_db_and_view.sql`)
+The cleaned dataset is exported as:
 
-`vw_superstore` is the single source of truth for all queries and Tableau. Key derived columns:
+```
+data/superstore_clean.csv
+```
 
-| Column | Logic |
+---
+
+## Step 2 — Database Load (`load.py`)
+
+The ETL script automatically:
+
+- Reads SQL credentials from a `.env` file
+- Recreates the SQL Server database
+- Loads the cleaned dataset
+- Creates the primary key
+- Builds the analytical view `vw_superstore`
+- Verifies successful data load
+
+Database connections are managed securely using environment variables.
+
+---
+
+## Step 3 — Analytical View
+
+The project creates a reusable SQL view:
+
+```
+vw_superstore
+```
+
+Additional business metrics are calculated inside SQL, including:
+
+| Derived Column | Description |
 |---|---|
-| `is_promoted` | 1 if discount > 0, else 0 |
-| `discount_bucket` | No Discount / Low (1-10%) / Mid (11-30%) / High (31-50%) / Extreme (>50%) |
-| `revenue_impact` | Dollar value given away as discount |
-| `contribution_margin` | `profit / sales` — negative means sold at a loss |
-| `unit_price` | `sales / (quantity × (1 - discount/100))` |
-| `profit_flag` | Profitable / Break-Even / Loss |
+| days_to_ship | Shipping duration |
+| order_year | Order year |
+| order_quarter | Order quarter |
+| order_month | Order month |
+| is_promoted | Promotion flag |
+| discount_bucket | Discount tier |
+| discount_bucket_rank | Tableau sort order |
+| revenue_impact | Revenue lost through discounting |
+| contribution_margin | Profit ÷ Sales |
+| unit_price | Estimated full unit price |
+| profit_flag | Profit / Break-even / Loss |
 
 ---
 
-## SQL Analysis
+# SQL Analysis
 
-### Q1 — Promotions vs Profit
-Every loss came from a discounted order. Promoted orders average **-$6.66 profit** vs **+$66.90** for full-price. The gap widens year over year.
+The SQL scripts answer four business questions.
 
-### Q2 — Over-Discounted Categories
-- **Tables** — 63.6% loss rate
-- **Bookcases** — 47.8% loss rate
-- **Binders** — highest avg discount at 37.2%, $128K in revenue given away
+## Promotions vs Profit
 
-### Q3 — Price Elasticity by Segment
-No segment increases volume at deeper discounts. Volume is flat or falling at every tier above Mid, confirming all three segments are **inelastic** to discounting. Corporate and Home Office at Extreme discount lose over **$1 per dollar of revenue**.
-
-### Q4 — Discount Optimisation
-| Discount Tier | Margin | Loss Rate |
-|---|---|---|
-| No Discount | 29.5% | 0% |
-| Low (1–10%) | ~14.7% | ~2% |
-| Mid (11–30%) | 9.1% | ~8% |
-| High (31–50%) | -24.8% | 91.6% |
-| Extreme (>50%) | -119.2% | **100%** |
+Measures whether discounted transactions generate sustainable profit.
 
 ---
 
-## Recommended Caps
+## Over-Discounted Categories
 
-| Category | Cap | Rationale |
-|---|---|---|
-| Furniture | **20%** | Tables and Bookcases destroy margin at any discount above Low |
-| Office Supplies | **30%** | Binders over-discounted at 37.2% avg |
-| Technology | **30%** | Machines require closer monitoring |
+Identifies categories and sub-categories where discounts consistently destroy margin.
 
 ---
 
-## Tableau Story — *The Discount Trap*
+## Price Elasticity
 
-5 story points, each with an action filter and a one-line caption:
-
-| # | Story Point | Caption |
-|---|---|---|
-| 1 | Executive Summary | *Discounts are buying revenue, not profit.* |
-| 2 | Do Promotions Increase Profit or Revenue? | *Every loss in this dataset came from a discounted order.* |
-| 3 | Which Categories Are Over-Discounted? | *Tables and Bookcases lose money on more than half their discounted orders.* |
-| 4 | Price Elasticity by Segment | *No segment buys more at deeper discounts — volume is flat, margin is not.* |
-| 5 | Optimise Discount Depth | *A 30% cap recovers $124K without eliminating a single profitable order.* |
+Evaluates whether customer segments purchase more units as discounts increase.
 
 ---
 
-## Dataset
+## Discount Optimization
 
-- **Source:** [Sample Superstore — Kaggle](https://www.kaggle.com/datasets/vivek468/superstore-dataset-final)
-- **Rows:** 9,994
-- **Date range:** January 2014 – December 2017
-- **Scope:** US retail orders across Furniture, Office Supplies, and Technology
+Simulates different discount thresholds to recommend a more profitable pricing policy.
+
+---
+
+# Tableau Dashboard
+
+The Tableau Story contains five sections:
+
+1. Executive Summary
+2. Promotions vs Profit
+3. Over-Discounted Categories
+4. Price Elasticity by Segment
+5. Discount Optimization
+
+---
+
+# Dataset
+
+**Source**
+
+https://www.kaggle.com/datasets/vivek468/superstore-dataset-final
+
+**Rows**
+
+9,994
+
+**Period**
+
+January 2014 – December 2017
+
+**Markets**
+
+United States
+
+---
+
+# Getting Started
+
+## Prerequisites
+
+- Python 3.9+
+- Docker Desktop
+- SQL Server 2022 Docker container
+- ODBC Driver 18 for SQL Server
+
+---
+
+## Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/avaniiijain/Retail-Sales-Profitability-Discount-Analysis.git
+
+cd Retail-Sales-Profitability-Discount-Analysis
+```
+
+Create a `.env` file using `.env.example`:
+
+```text
+SQL_SERVER=127.0.0.1,1433
+SQL_DATABASE=SuperstoreDB
+SQL_USERNAME=sa
+SQL_PASSWORD=your_password
+SQL_DRIVER=ODBC Driver 18 for SQL Server
+```
+
+Run the ETL pipeline:
+
+```bash
+python python_etl/Data_prep.py
+
+python python_etl/load.py
+```
+
+---
+
+# Author
+
+**Avani Jain**
+
+MS in Business Analytics  
+University of Massachusetts Boston
+
+LinkedIn:
+
+GitHub: https://github.com/avaniiijain
