@@ -302,6 +302,6 @@ python python_etl/load.py
 MS in Business Analytics  
 University of Massachusetts Boston
 
-LinkedIn:
+LinkedIn: https://www.linkedin.com/in/avani-jain-893628254
 
 GitHub: https://github.com/avaniiijain
