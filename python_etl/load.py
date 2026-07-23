@@ -232,14 +232,19 @@ with engine.connect() as conn:
                 sales / NULLIF(quantity * (1 - percentage_discount / 100.0), 0),
             2) AS DECIMAL(10,2))                     AS unit_price,
 
-            -- Dollar value given away as discount
+                      
+            -- Dollar value given away as discount or the revenue lost due to discounting 
+            -- Formula: original revenue - actual revenue
             CAST(ROUND(
                 (sales / NULLIF(1 - percentage_discount / 100.0, 0)) - sales,
             2) AS DECIMAL(12,2))                    AS revenue_impact,
 
+                      
             -- Profit as a fraction of sales — negative means sold at a loss
-            CAST(ROUND(profit / NULLIF(sales, 0), 4) AS DECIMAL(10,4))AS contribution_margin,
+            CAST(ROUND(profit / NULLIF(sales, 0), 4) AS DECIMAL(10,4))
+                                                    AS contribution_margin,
 
+                      
             -- Human readable profit classification
             CASE
                 WHEN profit > 0 THEN 'Profitable'

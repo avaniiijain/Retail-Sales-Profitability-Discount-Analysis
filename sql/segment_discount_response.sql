@@ -2,17 +2,17 @@
 
 -- Business context:
 --   Not every customer type responds to discounts the same way.
---   Elastic segments increase volume when discounted — making
+--   Elastic segments increase volume when discounted ï¿½ making
 --   some discount spend justifiable. Inelastic segments buy
---   regardless — meaning discounts on them are pure giveaway.
+--   regardless ï¿½ meaning discounts on them are pure giveaway.
 --
 -- Finding:
 --   All three segments show identical margin collapse at High
---   and Extreme discount tiers — suggesting no segment is
+--   and Extreme discount tiers ï¿½ suggesting no segment is
 --   actually buying more at deep discounts, they are simply
 --   being given money away. Corporate and Home Office at
 --   Extreme discount lose over $1 per dollar of revenue.
---   No discount tier across any segment improves profit —
+--   No discount tier across any segment improves profit ï¿½
 --   only Mid discounts (11-30%) remain marginally positive.
 --
 -- Decision this enables:
@@ -22,7 +22,7 @@
 --   can be retained selectively.
 
 
--- PART A: Segment x discount bucket — core elasticity matrix
+-- PART A: Segment x discount bucket ï¿½ core elasticity matrix
 -- The main analytical output for this question
 
 SELECT
@@ -33,7 +33,7 @@ SELECT
     ROUND(AVG(sales), 2)                                               AS avg_order_value,
     ROUND(AVG(quantity), 2)                                            AS avg_quantity,
     ROUND(AVG(profit), 2)                                              AS avg_profit,
-    ROUND(AVG(contribution_margin) * 100, 2)                           AS avg_margin_pct,
+    ROUND(AVG(CASE WHEN sales = 0 THEN 0 ELSE profit * 1.0 / sales END) * 100, 2)                           AS avg_margin_pct,
     ROUND(SUM(profit), 2)                                              AS total_profit,
     SUM(CASE WHEN profit_flag = 'Loss' THEN 1 ELSE 0 END)              AS loss_orders,
     ROUND(
@@ -47,7 +47,7 @@ ORDER BY segment, discount_bucket_rank;
 
 -- PART B: Volume response to discounting per segment
 -- If a segment is elastic, order count should rise at
--- higher discount tiers — flat or falling means inelastic
+-- higher discount tiers ï¿½ flat or falling means inelastic
 
 WITH segment_baseline AS (
     -- Baseline: average order count at No Discount per segment
@@ -73,7 +73,7 @@ GROUP BY v.segment, v.discount_bucket, v.discount_bucket_rank, b.baseline_orders
 ORDER BY v.segment, v.discount_bucket_rank;
 
 
--- PART C: High value orders by segment — are we discounting
+-- PART C: High value orders by segment ï¿½ are we discounting
 -- our best customers unnecessarily?
 
 SELECT
@@ -83,7 +83,7 @@ SELECT
     ROUND(AVG(unit_price), 2)                                          AS avg_unit_price,
     ROUND(AVG(sales), 2)                                               AS avg_order_value,
     ROUND(AVG(profit), 2)                                              AS avg_profit,
-    ROUND(AVG(contribution_margin) * 100, 2)                           AS avg_margin_pct,
+    ROUND(AVG(CASE WHEN sales = 0 THEN 0 ELSE profit * 1.0 / sales END) * 100, 2)                           AS avg_margin_pct,
     ROUND(SUM(revenue_impact), 2)                                      AS total_revenue_given_away
 FROM SuperstoreDB.dbo.vw_superstore
 GROUP BY segment, is_promoted
@@ -92,7 +92,7 @@ ORDER BY segment, is_promoted DESC;
 
 -- ------------------------------------------------------------
 -- PART D: Segment profitability ranking at each discount tier
--- Window function — ranks segments by profit within each tier
+-- Window function ï¿½ ranks segments by profit within each tier
 -- ------------------------------------------------------------
 WITH segment_tier AS (
     SELECT
@@ -100,7 +100,7 @@ WITH segment_tier AS (
         discount_bucket,
         discount_bucket_rank,
         ROUND(SUM(profit), 2)                                           AS total_profit,
-        ROUND(AVG(contribution_margin) * 100, 2)                        AS avg_margin_pct
+        ROUND(AVG(CASE WHEN sales = 0 THEN 0 ELSE profit * 1.0 / sales END) * 100, 2)                        AS avg_margin_pct
     FROM SuperstoreDB.dbo.vw_superstore
     GROUP BY segment, discount_bucket, discount_bucket_rank
 )
