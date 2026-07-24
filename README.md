@@ -1,102 +1,146 @@
 # The Discount Trap
-## Superstore Discount & Profitability Analysis
 
-> *Discounts are buying revenue, not profit.*
+### *When More Sales Lead to Less Profit*
 
-An end-to-end Business Intelligence project investigating how discounting affects revenue, profitability, and pricing strategy using **Python, SQL Server, and Tableau**.
+> **An end-to-end retail pricing analytics project that evaluates whether promotional discounts create sustainable business value and recommends a more profitable pricing strategy through SQL-driven analysis.**
 
-**🔗 Tableau Story:**  
-https://public.tableau.com/views/Retail_Sales_project/TheDiscountTrap?:language=en-US&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link
+<p align="center">
+  <b>Python ETL</b> • 🗄️ <b>SQL Server Analytics</b> • <b>Tableau Storytelling</b> • <b>Docker</b>
+</p>
+
+<p align="center">
+  <a href="https://public.tableau.com/views/Retail_Sales_project/TheDiscountTrap?:language=en-US&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link">
+    View the Tableau Story
+  </a>
+</p>
 
 ---
 
-# Project Overview
+## Project Overview
 
-Retail businesses often rely on promotions to increase sales, but aggressive discounting can reduce profitability.
+Retail businesses frequently use discounts to attract customers and increase sales. However, higher sales activity does not necessarily result in stronger profitability.
 
-This project analyzes four years of Superstore sales data to determine whether discounts actually improve business performance or simply generate additional revenue at the expense of profit.
+This project investigates whether promotional discounts create sustainable financial value or reduce margins through excessive discounting.
 
-The project covers the complete analytics workflow:
+The project follows a complete analytics workflow:
 
-- Data cleaning with Python
+- Data validation and cleaning with Python
 - ETL pipeline into SQL Server
-- Analytical SQL view creation
+- Analytical view creation
 - Business analysis using T-SQL
-- Interactive Tableau dashboard
+- Discount-policy simulation
+- Interactive storytelling with Tableau
 
 ---
 
-# Business Questions
+## Business Questions
 
-This project answers four key questions:
+The investigation was structured around four sequential business questions, with each answer guiding the next stage of analysis.
 
-1. Do promotions increase profit or only revenue?
-2. Which product categories are over-discounted?
-3. How price-sensitive are different customer segments?
-4. What discount policy would maximize profitability?
-
----
-
-# Key Finding
-
-| | Full Price | Discounted |
-|---|---:|---:|
-| Total Profit | $320,987 | -$34,590 |
-| Average Order Profit | $66.90 | -$6.66 |
-| Loss-Making Orders | 0 | 1,871 |
-| Average Contribution Margin | 33.9% | -8.3% |
-
-> Discounts increased revenue, but every loss-making order in the dataset occurred on a discounted transaction.
+| Stage | Business Question |
+|---|---|
+| 📈 **Stage 1** | Do promotions actually increase profit or just revenue? |
+| 📦 **Stage 2** | Which product categories are over-discounted? |
+| 👥 **Stage 3** | How do different customer segments respond to discounting? |
+| 💡 **Stage 4** | What discount strategy maximizes profitability while protecting margins? |
 
 ---
 
-# Tech Stack
+## Key Findings
+
+- Discounted transactions generated strong sales activity but weakened overall profitability.
+- Promotional losses were concentrated within specific categories and sub-categories.
+- Profitability declined substantially as discount depth increased.
+- Customer segments showed broadly similar patterns across discount levels.
+- Product economics and discount depth were more important than customer segment.
+- The analysis supported a hybrid strategy combining tailored sub-category caps with a broader company-wide discount limit.
+
+Detailed findings and visualizations are available in the Tableau Story and SQL scripts.
+
+---
+
+## Tech Stack
 
 | Layer | Technology |
 |---|---|
 | Programming | Python 3 |
-| Data Cleaning | Pandas |
+| Data Preparation | pandas |
 | ETL | SQLAlchemy, pyodbc |
-| Database | SQL Server 2022 (Docker) |
-| SQL | T-SQL |
+| Database | SQL Server 2022 |
+| Infrastructure | Docker |
+| Analysis | T-SQL |
 | Visualization | Tableau Public |
-| Environment | python-dotenv |
-| Version Control | Git & GitHub |
+| Configuration | python-dotenv |
+| Version Control | Git and GitHub |
 
 ---
 
-# Project Architecture
+## Project Architecture
 
-```
-Sample_Superstore.csv
-        │
-        ▼
- Data_prep.py
-        │
-        ▼
-superstore_clean.csv
-        │
-        ▼
-     load.py
-        │
-        ▼
- SQL Server Database
-        │
-        ▼
-   vw_superstore
-        │
-        ▼
-   SQL Analysis
-        │
-        ▼
- Tableau Dashboard
+```text
+┌──────────────────────────────┐
+│ Raw Superstore Dataset       │
+│ Sample_Superstore.csv        │
+└──────────────┬───────────────┘
+               │
+               ▼
+┌──────────────────────────────┐
+│ Python Data Preparation      │
+│ Data_prep.py                 │
+│                              │
+│ • Cleaning                   │
+│ • Validation                 │
+│ • Transformation             │
+└──────────────┬───────────────┘
+               │
+               ▼
+┌──────────────────────────────┐
+│ Cleaned Dataset              │
+│ superstore_clean.csv         │
+└──────────────┬───────────────┘
+               │
+               ▼
+┌──────────────────────────────┐
+│ Python ETL Pipeline          │
+│ load.py                      │
+│                              │
+│ • Database creation          │
+│ • Table loading              │
+│ • SQL view creation          │
+└──────────────┬───────────────┘
+               │
+               ▼
+┌──────────────────────────────┐
+│ SQL Server Analytics Layer   │
+│                              │
+│ superstore_clean             │
+│ vw_superstore                │
+└──────────────┬───────────────┘
+               │
+               ▼
+┌──────────────────────────────┐
+│ T-SQL Business Analysis      │
+│                              │
+│ • Promotional performance    │
+│ • Product risk analysis      │
+│ • Segment response           │
+│ • Discount simulations       │
+└──────────────┬───────────────┘
+               │
+               ▼
+┌──────────────────────────────┐
+│ Tableau Storytelling         │
+│                              │
+│ Insights, trends and         │
+│ pricing recommendations      │
+└──────────────────────────────┘
 ```
 
 ---
 
-# Repository Structure
+## Repository Structure
 
-```
+```text
 Retail-Sales-Profitability-Discount-Analysis/
 │
 ├── data/
@@ -108,12 +152,13 @@ Retail-Sales-Profitability-Discount-Analysis/
 │   └── load.py
 │
 ├── sql/
-│   ├── promotions.sql
-│   ├── over discounted.sql
-│   ├── elasticity.sql
-│   └── optimisation.sql
+│   ├── 01_promotional_performance.sql
+│   ├── 02_over_discounted_products.sql
+│   ├── 03_segment_discount_response.sql
+│   └── 04_discount_optimization_strategy.sql
 │
 ├── tableau/
+│   └── dashboard_link.txt
 │
 ├── .env.example
 ├── .gitignore
@@ -122,186 +167,236 @@ Retail-Sales-Profitability-Discount-Analysis/
 
 ---
 
-# ETL Pipeline
+## ETL Pipeline
 
-## Step 1 — Data Preparation (`Data_prep.py`)
+### 1. Data Preparation
 
-The raw dataset is cleaned and validated before loading into SQL Server.
+`Data_prep.py` loads the raw dataset, validates its quality, performs the required transformations, and exports a cleaned CSV.
 
-### Transformations
+Main tasks include:
 
-- Standardized column names
-- Parsed order and ship dates
-- Preserved leading zeros in postal codes
-- Converted discount values to percentages
-- Rounded monetary values
-- Standardized categorical values
+- Standardizing column names
+- Parsing order and shipping dates
+- Preserving leading zeros in postal codes
+- Converting discounts into percentages
+- Standardizing categorical values
+- Checking duplicates, nulls, invalid dates, discounts, sales, and quantities
 
-### Validation Checks
+Output:
 
-- Duplicate Row IDs
-- Missing values
-- Invalid shipping dates
-- Invalid discount values
-- Invalid sales and quantity values
-
-The cleaned dataset is exported as:
-
-```
+```text
 data/superstore_clean.csv
 ```
 
----
+### 2. SQL Server Load
 
-## Step 2 — Database Load (`load.py`)
+`load.py`:
 
-The ETL script automatically:
-
-- Reads SQL credentials from a `.env` file
-- Recreates the SQL Server database
+- Reads database credentials from the `.env` file
+- Creates the SQL Server database
 - Loads the cleaned dataset
-- Creates the primary key
-- Builds the analytical view `vw_superstore`
-- Verifies successful data load
+- Assigns SQL data types
+- Adds a primary key
+- Creates the analytical view
+- Verifies the loaded table and view
 
-Database connections are managed securely using environment variables.
+### 3. Analytical View
 
----
+The reusable `vw_superstore` view provides a consistent analytical layer for SQL and Tableau.
 
-## Step 3 — Analytical View
+It includes derived fields such as:
 
-The project creates a reusable SQL view:
-
-```
-vw_superstore
-```
-
-Additional business metrics are calculated inside SQL, including:
-
-| Derived Column | Description |
+| Field | Purpose |
 |---|---|
-| days_to_ship | Shipping duration |
-| order_year | Order year |
-| order_quarter | Order quarter |
-| order_month | Order month |
-| is_promoted | Promotion flag |
-| discount_bucket | Discount tier |
-| discount_bucket_rank | Tableau sort order |
-| revenue_impact | Revenue lost through discounting |
-| contribution_margin | Profit ÷ Sales |
-| unit_price | Estimated full unit price |
-| profit_flag | Profit / Break-even / Loss |
+| `days_to_ship` | Shipping duration |
+| `order_year` | Year-level analysis |
+| `order_quarter` | Quarterly analysis |
+| `order_month` | Monthly analysis |
+| `is_promoted` | Identifies discounted transactions |
+| `discount_bucket` | Groups transactions by discount depth |
+| `discount_bucket_rank` | Maintains the correct discount-tier order |
+| `unit_price` | Estimates full unit price |
+| `revenue_impact` | Estimates revenue given away through discounting |
+| `contribution_margin` | Measures profit relative to sales |
+| `profit_flag` | Classifies profitable, break-even, or loss records |
 
 ---
 
-# SQL Analysis
+## SQL Analysis
 
-The SQL scripts answer four business questions.
+### Stage 1: Promotional Performance
 
-## Promotions vs Profit
+Compares discounted and full-price transactions to determine whether promotions improve profitability or primarily increase revenue.
 
-Measures whether discounted transactions generate sustainable profit.
+The analysis includes:
+
+- Overall promoted versus non-promoted performance
+- Category-level comparison
+- Performance over time
+- Overall profit impact of discounted sales
+
+### Stage 2: Over-Discounted Products
+
+Identifies where promotional losses are concentrated.
+
+The analysis includes:
+
+- Discounted sub-category profitability scorecard
+- Profitability by discount depth
+- High-risk sub-category screening
+- Category-level discount efficiency
+
+High-risk sub-categories are identified using:
+
+- Average promoted discount above 20%
+- Loss rate above 30%
+- At least 30 promoted sales records
+
+### Stage 3: Customer Segment Response
+
+Evaluates whether Consumer, Corporate, and Home Office customers perform differently under discounting.
+
+The analysis includes:
+
+- Segment profitability across discount tiers
+- Distribution of sales records and units across discount levels
+- Segment profitability ranking within each tier
+
+This is a descriptive analysis of observed customer activity and profitability. It does not estimate causal price elasticity.
+
+### Stage 4: Discount Optimization Strategy
+
+Translates the findings into actionable pricing recommendations.
+
+The analysis includes:
+
+- Discount-cap selection for high-risk sub-categories
+- Tailored discount-policy simulation
+- Uniform 30% discount-cap simulation
+- Category-level policy comparison
+
+SQL views are used to store reusable simulation outputs and avoid recalculating dependent results.
+
+Created views include:
+
+```text
+vw_high_risk_discount_caps
+vw_tailored_discount_policy
+vw_uniform_discount_policy
+```
 
 ---
 
-## Over-Discounted Categories
+## Tableau Story
 
-Identifies categories and sub-categories where discounts consistently destroy margin.
+The Tableau Story presents the SQL analysis through interactive business visualizations.
 
----
+It covers:
 
-## Price Elasticity
+1. Executive overview
+2. Promotions versus profit
+3. Over-discounted products
+4. Customer segment response
+5. Discount optimization and recommendations
 
-Evaluates whether customer segments purchase more units as discounts increase.
-
----
-
-## Discount Optimization
-
-Simulates different discount thresholds to recommend a more profitable pricing policy.
+**[Open the Tableau Story](https://public.tableau.com/views/Retail_Sales_project/TheDiscountTrap?:language=en-US&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link)**
 
 ---
 
-# Tableau Dashboard
+## Dataset
 
-The Tableau Story contains five sections:
+**Source:** [Superstore Dataset on Kaggle](https://www.kaggle.com/datasets/vivek468/superstore-dataset-final)
 
-1. Executive Summary
-2. Promotions vs Profit
-3. Over-Discounted Categories
-4. Price Elasticity by Segment
-5. Discount Optimization
-
----
-
-# Dataset
-
-**Source**
-
-https://www.kaggle.com/datasets/vivek468/superstore-dataset-final
-
-**Rows**
-
-9,994
-
-**Period**
-
-January 2014 – December 2017
-
-**Markets**
-
-United States
+| Attribute | Value |
+|---|---|
+| Records | 9,994 |
+| Period | January 2014–December 2017 |
+| Market | United States |
+| Categories | Furniture, Office Supplies, Technology |
 
 ---
 
-# Getting Started
+## Getting Started
 
-## Prerequisites
+### Prerequisites
 
 - Python 3.9+
 - Docker Desktop
-- SQL Server 2022 Docker container
-- ODBC Driver 18 for SQL Server
+- SQL Server 2022 Docker image
+- Microsoft ODBC Driver 18 for SQL Server
 
----
-
-## Installation
-
-Clone the repository:
+### Clone the Repository
 
 ```bash
 git clone https://github.com/avaniiijain/Retail-Sales-Profitability-Discount-Analysis.git
-
 cd Retail-Sales-Profitability-Discount-Analysis
 ```
 
-Create a `.env` file using `.env.example`:
+### Create a Virtual Environment
 
-```text
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+### Install Dependencies
+
+```bash
+pip install pandas sqlalchemy pyodbc python-dotenv
+```
+
+### Configure the Database Connection
+
+Create a `.env` file based on `.env.example`:
+
+```env
 SQL_SERVER=127.0.0.1,1433
 SQL_DATABASE=SuperstoreDB
 SQL_USERNAME=sa
-SQL_PASSWORD=your_password
+SQL_PASSWORD=your_password_here
 SQL_DRIVER=ODBC Driver 18 for SQL Server
 ```
 
-Run the ETL pipeline:
+### Run the ETL Pipeline
 
 ```bash
 python python_etl/Data_prep.py
-
 python python_etl/load.py
+```
+
+### Run the SQL Scripts
+
+Execute the SQL files in order:
+
+```text
+01_promotional_performance.sql
+02_over_discounted_products.sql
+03_segment_discount_response.sql
+04_discount_optimization_strategy.sql
 ```
 
 ---
 
-# Author
+## Simulation Assumptions
 
-**Avani Jain**
+The discount-policy analysis is a controlled what-if simulation.
 
+It assumes:
+
+- The same transactions and quantities are retained after repricing
+- Estimated product cost remains unchanged
+- Discounts above the proposed cap are reduced
+- Transactions already within the cap remain unchanged
+
+The simulation evaluates potential financial outcomes under these assumptions and does not predict changes in customer demand.
+
+---
+
+## Author
+
+**Avani Jain**  
 MS in Business Analytics  
 University of Massachusetts Boston
 
-LinkedIn: https://www.linkedin.com/in/avani-jain-893628254
-
-GitHub: https://github.com/avaniiijain
+[LinkedIn](https://www.linkedin.com/in/avani-jain-893628254)  
+[GitHub](https://github.com/avaniiijain)
